@@ -26,6 +26,7 @@ const navigation = [
   { name: "Clientes", href: "/dashboard/clients", icon: Users },
   { name: "Facturación", href: "/dashboard/billing", icon: FileText },
   { name: "Artículos", href: "/dashboard/articles", icon: Package },
+  { name: "Vendedores", href: "/dashboard/sellers", icon: DollarSign },
   { name: "Proveedores", href: "/dashboard/vendors", icon: Building2 },
   { name: "Contabilidad", href: "/dashboard/accounting", icon: BookOpen },
   { name: "Reportes", href: "/dashboard/reports", icon: BarChart3 },
