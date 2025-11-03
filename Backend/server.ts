@@ -1,0 +1,30 @@
+// IMPORTANTE: Esta debe ser la primera línea para asegurar que process.env esté cargado 
+// antes de que el archivo de la base de datos (db/index.ts) intente leer las variables.
+import 'dotenv/config'; 
+
+import express from "express";
+import cors from "cors";
+import vendedoresRoutes from "./src/routes/vendedores/vendedores"; 
+import clientesRoutes from "./src/routes/clientes/clientes";
+import loginRoutes from "./src/routes/login/login"; 
+import articulosRoutes from "./src/routes/articulos/articulos"; 
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("¡Backend corriendo!");
+});
+
+
+app.use("/api/login", loginRoutes); 
+
+app.use("/api/vendedores", vendedoresRoutes);
+
+app.use("/api/clientes", clientesRoutes);
+
+app.use("/api/articulos", articulosRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Backend corriendo en http://localhost:${PORT}`));
