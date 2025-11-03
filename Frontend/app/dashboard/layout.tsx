@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import type React from "react";
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Users,
@@ -18,8 +18,8 @@ import {
   Menu,
   X,
   Building2,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -31,28 +31,35 @@ const navigation = [
   { name: "Contabilidad", href: "/dashboard/accounting", icon: BookOpen },
   { name: "Reportes", href: "/dashboard/reports", icon: BarChart3 },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings },
-]
+];
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
-    window.location.href = "/"
-  }
+    window.location.href = "/";
+  };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
       {/* Sidebar */}
       <aside
         className={cn(
           "fixed top-0 left-0 z-50 h-full w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300 lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex flex-col h-full">
@@ -63,8 +70,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Building2 className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-sidebar-foreground">FacturaPro</h2>
-                <p className="text-xs text-sidebar-foreground/60">Sistema de Facturación</p>
+                <h2 className="text-lg font-bold text-sidebar-foreground">
+                  BillerOne
+                </h2>
+                <p className="text-xs text-sidebar-foreground/60">
+                  Sistema de Facturación
+                </p>
               </div>
             </div>
             <Button
@@ -80,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navigation.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}
@@ -89,14 +100,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <item.icon className="w-5 h-5" />
                   {item.name}
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -107,8 +118,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span className="text-sm font-semibold text-primary">AD</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">Administrador</p>
-                <p className="text-xs text-sidebar-foreground/60 truncate">admin@empresa.com</p>
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  Administrador
+                </p>
+                <p className="text-xs text-sidebar-foreground/60 truncate">
+                  admin@empresa.com
+                </p>
               </div>
             </div>
             <Button
@@ -128,11 +143,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-background border-b border-border">
           <div className="flex items-center justify-between px-4 py-4 lg:px-8">
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
               <Menu className="w-6 h-6" />
             </Button>
             <div className="flex-1 lg:flex-none">
-              <h1 className="text-xl font-semibold text-foreground lg:hidden">FacturaPro</h1>
+              <h1 className="text-xl font-semibold text-foreground lg:hidden">
+                FacturaPro
+              </h1>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
@@ -147,5 +169,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <main className="p-4 lg:p-8">{children}</main>
       </div>
     </div>
-  )
+  );
 }
