@@ -7,8 +7,7 @@ export type Articulo = {
   Estado: boolean | number;
 };
 
-// 🔹 URL base de la API
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = "http://localhost:5000/api";
 
 export function useArticlesLogic() {
   const [loading, setLoading] = useState(false);
@@ -59,10 +58,10 @@ export function useArticlesLogic() {
     setSaving(true);
     try {
       if (editingId) {
-        await fetch(`${API_URL}/articulos`, {
+        await fetch(`${API_URL}/articulos/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...form, ArticuloID: editingId }),
+          body: JSON.stringify(form),
         });
         showMessage("Artículo actualizado");
       } else {
