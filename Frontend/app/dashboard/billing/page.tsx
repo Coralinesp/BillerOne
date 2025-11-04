@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
+const API_BASE_URL = "http://localhost:5000"
+
 type Cliente = { ClienteID:number; NombreComercial:string; RNC_Cedula?:string }
 type Articulo = { ArticuloID:number; Descripcion:string; PrecioUnitario:number; Estado:number }
 type Vendedor = { VendedorID:number; Nombre:string }
@@ -20,6 +22,35 @@ type Item = {
   Importe: number
 }
 
+type Factura = {
+  FacturaID: number
+  ClienteID: number
+  Cliente: string
+  VendedorID: number
+  Vendedor: string
+  Fecha: string
+  Comentario: string | null
+  Total: number
+}
+
+type FacturaDetalle = {
+  FacturaID: number
+  ClienteID: number
+  Cliente: string
+  VendedorID: number
+  Vendedor: string
+  Fecha: string
+  Comentario: string | null
+  Detalle: Array<{
+    DetalleID: number
+    ArticuloID: number
+    Descripcion: string
+    Cantidad: number
+    PrecioUnitario: number
+    Importe: number
+  }>
+}
+
 export default function FacturacionPage() {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [vendedores, setVendedores] = useState<Vendedor[]>([])
@@ -30,19 +61,30 @@ export default function FacturacionPage() {
   const [busqueda, setBusqueda] = useState("")
   const [comentario, setComentario] = useState("")
   const [open, setOpen] = useState(false)
+  const [facturas, setFacturas] = useState<Factura[]>([])
+  const [facturaSeleccionada, setFacturaSeleccionada] = useState<FacturaDetalle | null>(null)
+  const [openDetalle, setOpenDetalle] = useState(false)
 
   const load = async () => {
     const [c, a, v] = await Promise.all([
-      fetch("/api/clientes", { cache: "no-store" }).then(r=>r.json()),
-      fetch("/api/articulos", { cache: "no-store" }).then(r=>r.json()),
-      fetch("/api/vendedores", { cache: "no-store" }).then(r=>r.json()),
+      fetch(`${API_BASE_URL}/api/clientes`).then(r=>r.json()),
+      fetch(`${API_BASE_URL}/api/articulos`).then(r=>r.json()),
+      fetch(`${API_BASE_URL}/api/vendedores`).then(r=>r.json()),
     ])
     setClientes(c)
     setArticulos(a.filter((x:Articulo)=>x.Estado))
     setVendedores(v)
   }
 
-  useEffect(()=>{ load() }, [])
+  const loadFacturas = async () => {
+    const f = await fetch(`${API_BASE_URL}/api/facturas`).then(r=>r.json())
+    setFacturas(f)
+  }
+
+  useEffect(()=>{ 
+    load()
+    loadFacturas()
+  }, [])
 
   const results = useMemo(() => {
     const q = busqueda.toLowerCase().trim()
@@ -82,7 +124,7 @@ export default function FacturacionPage() {
   const remove = (k: string) => setItems(prev => prev.filter(i=>i.key!==k))
 
   const subtotal = items.reduce((s,i)=>s+i.Importe,0)
-  const itbis = +(subtotal * 0.18).toFixed(2) // ajusta si el profe exige 18%/10%
+  const itbis = +(subtotal * 0.18).toFixed(2)
   const total = subtotal + itbis
 
   const crearFactura = async () => {
@@ -100,7 +142,7 @@ export default function FacturacionPage() {
         PrecioUnitario: i.PrecioUnitario
       })),
     }
-    const r = await fetch("/api/facturas", {
+    const r = await fetch(`${API_BASE_URL}/api/facturas`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -116,6 +158,14 @@ export default function FacturacionPage() {
     setVendedorId("")
     setComentario("")
     setItems([])
+    // recargar facturas
+    loadFacturas()
+  }
+
+  const verDetalle = async (facturaId: number) => {
+    const detalle = await fetch(`${API_BASE_URL}/api/facturas/${facturaId}`).then(r=>r.json())
+    setFacturaSeleccionada(detalle)
+    setOpenDetalle(true)
   }
 
   return (
@@ -232,10 +282,134 @@ export default function FacturacionPage() {
         </div>
       </div>
 
+      <Card className="p-4 lg:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Facturas Generadas</h2>
+          <Button variant="outline" size="sm" onClick={loadFacturas}>Actualizar</Button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-2 px-2">ID</th>
+                <th className="text-left py-2 px-2">Cliente</th>
+                <th className="text-left py-2 px-2">Vendedor</th>
+                <th className="text-left py-2 px-2">Fecha</th>
+                <th className="text-left py-2 px-2">Comentario</th>
+                <th className="text-right py-2 px-2">Total</th>
+                <th className="text-center py-2 px-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {facturas.map(f=>(
+                <tr key={f.FacturaID} className="border-b border-border hover:bg-muted/30">
+                  <td className="py-2 px-2">{f.FacturaID}</td>
+                  <td className="py-2 px-2">{f.Cliente}</td>
+                  <td className="py-2 px-2">{f.Vendedor}</td>
+                  <td className="py-2 px-2">{new Date(f.Fecha).toLocaleString()}</td>
+                  <td className="py-2 px-2">{f.Comentario || "-"}</td>
+                  <td className="py-2 px-2 text-right font-medium">${f.Total?.toLocaleString() || "0"}</td>
+                  <td className="py-2 px-2 text-center">
+                    <Button variant="outline" size="sm" onClick={()=>verDetalle(f.FacturaID)}>
+                      Ver Detalle
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {facturas.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                    No hay facturas generadas
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>Factura creada</DialogTitle></DialogHeader>
           <p>La factura se generó correctamente.</p>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openDetalle} onOpenChange={setOpenDetalle}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalle de Factura #{facturaSeleccionada?.FacturaID}</DialogTitle>
+          </DialogHeader>
+          {facturaSeleccionada && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Cliente</Label>
+                  <p className="font-medium">{facturaSeleccionada.Cliente}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Vendedor</Label>
+                  <p className="font-medium">{facturaSeleccionada.Vendedor}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Fecha</Label>
+                  <p className="font-medium">{new Date(facturaSeleccionada.Fecha).toLocaleString()}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Comentario</Label>
+                  <p className="font-medium">{facturaSeleccionada.Comentario || "Sin comentarios"}</p>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-2">Artículos</h3>
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 px-2">Artículo</th>
+                      <th className="text-right py-2 px-2">Precio</th>
+                      <th className="text-right py-2 px-2">Cantidad</th>
+                      <th className="text-right py-2 px-2">Importe</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {facturaSeleccionada.Detalle.map(d=>(
+                      <tr key={d.DetalleID} className="border-b">
+                        <td className="py-2 px-2">{d.Descripcion}</td>
+                        <td className="py-2 px-2 text-right">${d.PrecioUnitario.toLocaleString()}</td>
+                        <td className="py-2 px-2 text-right">{d.Cantidad}</td>
+                        <td className="py-2 px-2 text-right font-medium">${d.Importe.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="border-t pt-4 space-y-2">
+                {(() => {
+                  const sub = facturaSeleccionada.Detalle.reduce((s,d)=>s+d.Importe,0)
+                  const itb = +(sub * 0.18).toFixed(2)
+                  const tot = sub + itb
+                  return (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="font-medium">${sub.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">ITBIS (18%)</span>
+                        <span className="font-medium">${itb.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between border-t pt-2">
+                        <span className="text-lg font-semibold">Total</span>
+                        <span className="text-lg font-bold text-primary">${tot.toLocaleString()}</span>
+                      </div>
+                    </>
+                  )
+                })()}
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
