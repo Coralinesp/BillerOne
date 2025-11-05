@@ -1,5 +1,3 @@
-// IMPORTANTE: Esta debe ser la primera línea para asegurar que process.env esté cargado 
-// antes de que el archivo de la base de datos (db/index.ts) intente leer las variables.
 import 'dotenv/config'; 
 
 import express from "express";
@@ -19,17 +17,11 @@ app.get("/", (req, res) => {
   res.send("¡Backend corriendo!");
 });
 
-
 app.use("/api/login", loginRoutes); 
-
 app.use("/api/vendedores", vendedoresRoutes);
-
 app.use("/api/clientes", clientesRoutes);
-
 app.use("/api/articulos", articulosRoutes);
-
 app.use("/api/facturas", facturasRoutes);
-
 app.use("/api/facturas-detalles", detallefacturaRoutes);
 
 const PORT = process.env.PORT || 5000;

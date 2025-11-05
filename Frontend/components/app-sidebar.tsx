@@ -10,15 +10,10 @@ import {
 } from "lucide-react"
 
 const items = [
-  { href: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/app/dashboard/clients", label: "Clientes", icon: Users },
   { href: "/app/dashboard/billing", label: "Billing", icon: Receipt },
   { href: "/app/dashboard/articles", label: "Artículos", icon: Package },
   { href: "/app/dashboard/sellers", label: "Sellers", icon: UserCheck },
-  { href: "/app/dashboard/proveedores", label: "Proveedores", icon: Factory },
-  { href: "/app/dashboard/contabilidad", label: "Contabilidad", icon: BookOpen },
-  { href: "/app/dashboard/reportes", label: "Reportes", icon: BarChart3 },
-  { href: "/app/dashboard/configuracion", label: "Configuración", icon: Settings },
 ]
 
 export default function AppSidebar() {

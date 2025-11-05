@@ -10,7 +10,6 @@ router.use((req, res, next) => {
     next();
 });
 
-// RUTA GET: Obtener todos los vendedores
 router.get("/", async (req: Request, res: Response) => {
     try {
         const db = await getDb();
@@ -21,7 +20,6 @@ router.get("/", async (req: Request, res: Response) => {
             ORDER BY VendedorID DESC
         `);
         
-        // Express utiliza res.json() en lugar de NextResponse.json()
         res.status(200).json(r.recordset);
     } catch (error) {
         console.error("Error en GET /api/vendedores:", error);
@@ -29,12 +27,8 @@ router.get("/", async (req: Request, res: Response) => {
     }
 });
 
-// =================================================================================
-// RUTA POST: Crear un nuevo vendedor
-// =================================================================================
 router.post("/", async (req: Request, res: Response) => {
     try {
-        // En Express, el cuerpo ya está parseado y disponible en req.body gracias a app.use(express.json())
         const { Nombre, PorcentajeComision = 0, Estado = 1 } = req.body;
         
         if (!Nombre) {
@@ -43,20 +37,17 @@ router.post("/", async (req: Request, res: Response) => {
 
         const db = await getDb();
         
-        // Uso de input() para prevenir inyección SQL y especificar tipos, ¡excelente práctica!
         const r = await db
             .request()
             .input("Nombre", sql.NVarChar(100), Nombre)
-            // Aseguramos que PorcentajeComision y Estado son números antes de pasarlos
             .input("PorcentajeComision", sql.Decimal(5, 2), Number(PorcentajeComision))
-            .input("Estado", sql.Bit, Estado ? 1 : 0) // Convierte a 1 o 0 para BIT
+            .input("Estado", sql.Bit, Estado ? 1 : 0)
             .query(`
                 INSERT INTO Vendedores (Nombre, PorcentajeComision, Estado)
                 OUTPUT INSERTED.*
                 VALUES (@Nombre, @PorcentajeComision, @Estado)
             `);
             
-        // Devuelve el vendedor recién creado con el estado 201 (Created)
         res.status(201).json(r.recordset[0]);
     } catch (error) {
         console.error("Error en POST /api/vendedores:", error);
@@ -64,7 +55,6 @@ router.post("/", async (req: Request, res: Response) => {
     }
 });
 
-// RUTA PUT: Actualizar un vendedor por ID
 router.put("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -102,7 +92,6 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// RUTA DELETE: Eliminar un vendedor por ID
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

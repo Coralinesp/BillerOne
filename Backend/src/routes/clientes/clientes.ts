@@ -10,9 +10,6 @@ router.use((req, res, next) => {
   next();
 });
 
-// ============================================================================
-// RUTA GET: Obtener todos los clientes
-// ============================================================================
 router.get("/", async (req: Request, res: Response) => {
   try {
     const db = await getDb();
@@ -30,10 +27,6 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-
-// ============================================================================
-// RUTA POST: Crear un nuevo cliente
-// ============================================================================
 router.post("/", async (req: Request, res: Response) => {
   try {
     const { NombreComercial, RNC_Cedula, CuentaContable, Estado = 1 } = req.body;
@@ -65,10 +58,6 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-
-// ============================================================================
-// RUTA PUT: Actualizar un cliente existente
-// ============================================================================
 router.put("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -110,10 +99,6 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-
-// ============================================================================
-// RUTA DELETE: Eliminar un cliente
-// ============================================================================
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

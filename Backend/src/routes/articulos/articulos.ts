@@ -3,7 +3,6 @@ import { getDb, sql } from "../../db/index";
 
 const router = Router();
 
-// Middleware para validar Content-Type en POST
 router.use((req, res, next) => {
   if (req.method === "POST" && req.headers["content-type"] !== "application/json") {
     return res.status(400).json({ error: "Content-Type debe ser 'application/json'" });
@@ -11,9 +10,6 @@ router.use((req, res, next) => {
   next();
 });
 
-// ============================
-// RUTA GET: Obtener todos los artículos
-// ============================
 router.get("/", async (req: Request, res: Response) => {
   try {
     const db = await getDb();
@@ -29,9 +25,6 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// ============================
-// RUTA POST: Crear un nuevo artículo
-// ============================
 router.post("/", async (req: Request, res: Response) => {
   try {
     const { Descripcion, PrecioUnitario = 0, Estado = 1 } = req.body;
@@ -59,9 +52,6 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-// ============================
-// RUTA PUT: Actualizar un artículo por ID
-// ============================
 router.put("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -98,9 +88,6 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// ============================
-// RUTA DELETE: Eliminar un artículo por ID
-// ============================
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

@@ -22,15 +22,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Clientes", href: "/dashboard/clients", icon: Users },
   { name: "Facturación", href: "/dashboard/billing", icon: FileText },
   { name: "Artículos", href: "/dashboard/articles", icon: Package },
   { name: "Vendedores", href: "/dashboard/sellers", icon: DollarSign },
-  { name: "Proveedores", href: "/dashboard/vendors", icon: Building2 },
-  { name: "Contabilidad", href: "/dashboard/accounting", icon: BookOpen },
-  { name: "Reportes", href: "/dashboard/reports", icon: BarChart3 },
-  { name: "Configuración", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function DashboardLayout({

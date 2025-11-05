@@ -3,7 +3,6 @@ import { getDb, sql } from "../../db/index";
 
 const router = Router();
 
-// Middleware para validar Content-Type JSON en POST
 router.use((req, res, next) => {
   if (req.method === "POST" && req.headers["content-type"] !== "application/json") {
     return res.status(400).json({ error: "Content-Type debe ser 'application/json'" });
@@ -11,9 +10,6 @@ router.use((req, res, next) => {
   next();
 });
 
-// =================================================================================
-// GET /api/detalle-factura  →  Obtener todos los detalles de facturas
-// =================================================================================
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const db = await getDb();
@@ -38,9 +34,6 @@ router.get("/", async (_req: Request, res: Response) => {
   }
 });
 
-// =================================================================================
-// GET /api/detalle-factura/:id  →  Obtener un detalle específico por DetalleID
-// =================================================================================
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -75,9 +68,6 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// =================================================================================
-// GET /api/detalle-factura/factura/:facturaId  →  Obtener detalles por FacturaID
-// =================================================================================
 router.get("/factura/:facturaId", async (req: Request, res: Response) => {
   try {
     const { facturaId } = req.params;
@@ -109,9 +99,6 @@ router.get("/factura/:facturaId", async (req: Request, res: Response) => {
   }
 });
 
-// =================================================================================
-// POST /api/detalle-factura  →  Crear un nuevo detalle de factura
-// =================================================================================
 router.post("/", async (req: Request, res: Response) => {
   const { FacturaID, ArticuloID, Cantidad, PrecioUnitario } = req.body;
 
@@ -141,9 +128,6 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-// =================================================================================
-// PUT /api/detalle-factura/:id  →  Actualizar un detalle de factura
-// =================================================================================
 router.put("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -189,9 +173,6 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// =================================================================================
-// DELETE /api/detalle-factura/:id  →  Eliminar un detalle de factura
-// =================================================================================
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

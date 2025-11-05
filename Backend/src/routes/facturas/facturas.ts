@@ -3,7 +3,6 @@ import { getDb, sql } from "../../db/index";
 
 const router = Router();
 
-// Middleware para validar Content-Type JSON en POST
 router.use((req, res, next) => {
   if (req.method === "POST" && req.headers["content-type"] !== "application/json") {
     return res.status(400).json({ error: "Content-Type debe ser 'application/json'" });
@@ -11,9 +10,6 @@ router.use((req, res, next) => {
   next();
 });
 
-// =================================================================================
-// GET /api/facturas  →  Obtener todas las facturas con totales
-// =================================================================================
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const db = await getDb();
@@ -37,9 +33,6 @@ router.get("/", async (_req: Request, res: Response) => {
   }
 });
 
-// =================================================================================
-// GET /api/facturas/:id  →  Obtener una factura específica con detalle
-// =================================================================================
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -48,7 +41,6 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     const db = await getDb();
 
-    // Cabecera de factura
     const header = await db.request()
       .input("FacturaID", sql.Int, facturaId)
       .query(`
@@ -65,7 +57,6 @@ router.get("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Factura no encontrada." });
     }
 
-    // Detalle de factura
     const detalle = await db.request()
       .input("FacturaID", sql.Int, facturaId)
       .query(`
@@ -86,9 +77,6 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// =================================================================================
-// POST /api/facturas  →  Crear una nueva factura con su detalle (transacción)
-// =================================================================================
 router.post("/", async (req: Request, res: Response) => {
   const { ClienteID, VendedorID, Comentario, Detalle } = req.body;
 
@@ -102,7 +90,6 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     await tx.begin();
 
-    // Insertar la factura principal
     const fr = await new sql.Request(tx)
       .input("ClienteID", sql.Int, ClienteID)
       .input("VendedorID", sql.Int, VendedorID)
@@ -115,7 +102,6 @@ router.post("/", async (req: Request, res: Response) => {
 
     const facturaId = fr.recordset[0].FacturaID as number;
 
-    // Insertar los detalles
     for (const item of Detalle as Array<{ ArticuloID: number; Cantidad: number; PrecioUnitario: number }>) {
       await new sql.Request(tx)
         .input("FacturaID", sql.Int, facturaId)
