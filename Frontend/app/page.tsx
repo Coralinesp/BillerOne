@@ -32,8 +32,6 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ Login correcto
-      console.log("Usuario:", data.user);
       window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);
@@ -44,23 +42,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#1aad57] to-[#148a45] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo y título */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-2xl mb-6">
-            <Building2 className="w-10 h-10 text-[#1aad57]" />
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Sistema de Facturación
-          </h1>
-          <p className="text-white/80 text-lg">
-            Ingrese sus credenciales para continuar
-          </p>
-        </div>
-
         {/* Formulario */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/30">
+          {/* Logo */}
+          <div className="flex items-center justify-center mb-6">
+            <img
+              src="/Logo.png"
+              alt="Logo de la empresa"
+              className="h-20 w-auto transition-transform hover:scale-105"
+            />
+          </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <Label
@@ -77,7 +70,7 @@ export default function LoginPage() {
                   placeholder="Ingrese su usuario"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="pl-10 h-12 border-gray-300 focus:border-primary focus:ring-primary rounded-xl"
+                  className="pl-10 h-12 border-gray-300 focus:border-emerald-600 focus:ring-emerald-600 rounded-xl"
                   required
                 />
               </div>
@@ -98,13 +91,12 @@ export default function LoginPage() {
                   placeholder="Ingrese su contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 h-12 border-gray-300 focus:border-primary focus:ring-primary rounded-xl"
+                  className="pl-10 h-12 border-gray-300 focus:border-emerald-600 focus:ring-emerald-600 rounded-xl"
                   required
                 />
               </div>
             </div>
 
-            {/* Mensaje de error */}
             {error && (
               <div className="text-red-600 font-medium text-sm text-center">
                 {error}
@@ -113,7 +105,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+              className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition-all duration-200 hover:shadow-lg hover:scale-[1.02]"
               disabled={loading}
             >
               {loading ? "Verificando..." : "Iniciar Sesión"}

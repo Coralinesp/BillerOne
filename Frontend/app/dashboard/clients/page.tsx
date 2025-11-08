@@ -67,6 +67,7 @@ export default function ClientsPage() {
                   setForm({ Estado: 1 });
                   setEditingId(null);
                 }}
+                className="bg-emerald-700 hover:bg-emerald-900"
               >
                 <Plus className="w-4 h-4 mr-2" /> Nuevo
               </Button>
@@ -155,10 +156,18 @@ export default function ClientsPage() {
                   </select>
                 </div>
                 <div className="flex justify-end gap-2 mt-2">
-                  <Button variant="outline" onClick={() => setOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setOpen(false)}
+                    className="hover:bg-gray-300"
+                  >
                     Cancelar
                   </Button>
-                  <Button onClick={save} disabled={saving}>
+                  <Button
+                    onClick={save}
+                    disabled={saving}
+                    className="bg-emerald-700 hover:bg-emerald-900"
+                  >
                     {saving ? "Guardando..." : "Guardar"}
                   </Button>
                 </div>
@@ -218,7 +227,7 @@ export default function ClientsPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="mr-2"
+                    className="mr-2  hover:bg-emerald-800"
                     onClick={() => {
                       setEditingId(c.ClienteID);
                       setForm(c);
@@ -234,6 +243,7 @@ export default function ClientsPage() {
                       setSelectedCliente(c);
                       setDeleteOpen(true);
                     }}
+                    className="hover:bg-red-900"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -263,7 +273,11 @@ export default function ClientsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center gap-3 mt-4">
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteOpen(false)}
+              className="hover:bg-gray-300"
+            >
               Cancelar
             </Button>
             <Button variant="destructive" onClick={remove} disabled={loading}>

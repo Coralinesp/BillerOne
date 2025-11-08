@@ -74,6 +74,7 @@ export default function ArticlesPage() {
                   openForm();
                   setOpen(true);
                 }}
+                className="bg-emerald-700 hover:bg-emerald-900"
               >
                 <Plus className="w-4 h-4 mr-2" /> Nuevo
               </Button>
