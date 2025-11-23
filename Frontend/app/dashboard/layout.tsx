@@ -12,15 +12,17 @@ import {
   DollarSign,
   LogOut,
   Menu,
+  Contact,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard/dashboard", icon: DollarSign },
   { name: "Clientes", href: "/dashboard/clients", icon: Users },
-  { name: "Facturación", href: "/dashboard/billing", icon: FileText },
   { name: "Artículos", href: "/dashboard/articles", icon: Package },
   { name: "Vendedores", href: "/dashboard/sellers", icon: DollarSign },
+  { name: "Facturación", href: "/dashboard/billing", icon: FileText },
+  { name: "Usuarios", href: "/dashboard/usuarios", icon: Contact },
 ];
 
 export default function DashboardLayout({

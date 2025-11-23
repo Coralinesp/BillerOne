@@ -8,6 +8,7 @@ import loginRoutes from "./src/routes/login/login";
 import articulosRoutes from "./src/routes/articulos/articulos"; 
 import facturasRoutes from "./src/routes/facturas/facturas"; 
 import detallefacturaRoutes from "./src/routes/detalle-factura/detalle-factura"; 
+import usuarios from "./src/routes/usuarios/usuarios"; 
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.use("/api/clientes", clientesRoutes);
 app.use("/api/articulos", articulosRoutes);
 app.use("/api/facturas", facturasRoutes);
 app.use("/api/facturas-detalles", detallefacturaRoutes);
+app.use("/api/usuarios", usuarios); 
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Backend corriendo en http://localhost:${PORT}`));
