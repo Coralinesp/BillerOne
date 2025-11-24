@@ -15,6 +15,7 @@ import {
   Contact,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard/dashboard", icon: DollarSign },
@@ -33,8 +34,15 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = () => {
-    window.location.href = "/";
+  const { user, logout } = useAuth();
+
+  const getInitials = (name?: string) => {
+    if (!name) return "??";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
   };
 
   return (
@@ -92,23 +100,25 @@ export default function DashboardLayout({
             })}
           </nav>
 
-          {/* Usuario */}
+          {/* Usuario dinámico */}
           <div className="p-4 border-t border-emerald-600/40 bg-emerald-800/40">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-white/20 text-white rounded-full flex items-center justify-center font-semibold">
-                AD
+                {getInitials(user?.nombre)}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">Administrador</span>
+                <span className="text-sm font-medium">
+                  {user?.nombre ?? "Usuario"}
+                </span>
                 <span className="text-xs text-emerald-200">
-                  admin@empresa.com
+                  {user?.usuario ?? "sin-usuario"}
                 </span>
               </div>
             </div>
             <Button
               variant="ghost"
               className="w-full justify-start gap-3 text-white/90 hover:bg-white/10 hover:text-white transition-all"
-              onClick={handleLogout}
+              onClick={logout}
             >
               <LogOut className="w-5 h-5" />
               Cerrar sesión

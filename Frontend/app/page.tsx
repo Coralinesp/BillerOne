@@ -1,12 +1,13 @@
 "use client";
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Lock, User } from "lucide-react";
+import { Lock, User } from "lucide-react";
+import { useAuth } from "@/context/AuthContext"; // <<< OK
 
 export default function LoginPage() {
+  const { login } = useAuth(); // <<< CAMBIO AQUÍ
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,13 @@ export default function LoginPage() {
         return;
       }
 
+      // 🔥 USAR login() DEL CONTEXTO
+      login({
+        id: data.user.id,
+        nombre: data.user.nombre,
+        usuario: data.user.usuario,
+      });
+
       window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);
@@ -44,9 +52,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Formulario */}
         <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/30">
-          {/* Logo */}
           <div className="flex items-center justify-center mb-6">
             <img
               src="/Logo.png"
@@ -54,6 +60,7 @@ export default function LoginPage() {
               className="h-20 w-auto transition-transform hover:scale-105"
             />
           </div>
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <Label
