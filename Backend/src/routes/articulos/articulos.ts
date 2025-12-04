@@ -1,27 +1,44 @@
 import { Router, Request, Response } from "express";
-import { getDb, sql } from "../../db/index";
+import { supabase } from "../../db";
 
 const router = Router();
 
 router.use((req, res, next) => {
   if (req.method === "POST" && req.headers["content-type"] !== "application/json") {
-    return res.status(400).json({ error: "Content-Type debe ser 'application/json'" });
+    return res
+      .status(400)
+      .json({ error: "Content-Type debe ser 'application/json'" });
   }
   next();
 });
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const db = await getDb();
-    const r = await db.request().query(`
-      SELECT ArticuloID, Descripcion, PrecioUnitario, Estado
-      FROM Articulos
-      ORDER BY ArticuloID DESC
-    `);
-    res.status(200).json(r.recordset);
+    const { data, error } = await supabase
+      .from("articulos")
+      .select("articuloid, descripcion, preciounitario, estado")
+      .order("articuloid", { ascending: false });
+
+    if (error) {
+      console.error("Error Supabase en GET /api/articulos:", error);
+      return res
+        .status(500)
+        .json({ error: "Error interno del servidor al obtener artículos." });
+    }
+
+    const mapped = (data || []).map((row) => ({
+      ArticuloID: row.articuloid,
+      Descripcion: row.descripcion,
+      PrecioUnitario: row.preciounitario,
+      Estado: row.estado,
+    }));
+
+    res.status(200).json(mapped);
   } catch (error) {
     console.error("Error en GET /api/articulos:", error);
-    res.status(500).json({ error: "Error interno del servidor al obtener artículos." });
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al obtener artículos." });
   }
 });
 
@@ -30,25 +47,44 @@ router.post("/", async (req: Request, res: Response) => {
     const { Descripcion, PrecioUnitario = 0, Estado = 1 } = req.body;
 
     if (!Descripcion) {
-      return res.status(400).json({ error: "El campo 'Descripcion' es obligatorio." });
+      return res
+        .status(400)
+        .json({ error: "El campo 'Descripcion' es obligatorio." });
     }
 
-    const db = await getDb();
-    const r = await db
-      .request()
-      .input("Descripcion", sql.NVarChar(150), Descripcion)
-      .input("PrecioUnitario", sql.Decimal(10, 2), Number(PrecioUnitario))
-      .input("Estado", sql.Bit, Estado ? 1 : 0)
-      .query(`
-        INSERT INTO Articulos (Descripcion, PrecioUnitario, Estado)
-        OUTPUT INSERTED.*
-        VALUES (@Descripcion, @PrecioUnitario, @Estado)
-      `);
+    const precio = Number(PrecioUnitario) || 0;
+    const estadoBool = Estado === 1 || Estado === true || Estado === "1";
 
-    res.status(201).json(r.recordset[0]);
+    const { data, error } = await supabase
+      .from("articulos")
+      .insert({
+        descripcion: Descripcion,
+        preciounitario: precio,
+        estado: estadoBool,
+      })
+      .select("articuloid, descripcion, preciounitario, estado")
+      .single();
+
+    if (error) {
+      console.error("Error Supabase en POST /api/articulos:", error);
+      return res
+        .status(500)
+        .json({ error: "Error interno del servidor al crear artículo." });
+    }
+
+    const mapped = {
+      ArticuloID: data.articuloid,
+      Descripcion: data.descripcion,
+      PrecioUnitario: data.preciounitario,
+      Estado: data.estado,
+    };
+
+    res.status(201).json(mapped);
   } catch (error) {
     console.error("Error en POST /api/articulos:", error);
-    res.status(500).json({ error: "Error interno del servidor al crear artículo." });
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al crear artículo." });
   }
 });
 
@@ -58,58 +94,105 @@ router.put("/:id", async (req: Request, res: Response) => {
     const { Descripcion, PrecioUnitario = 0, Estado = 1 } = req.body;
 
     if (!Descripcion) {
-      return res.status(400).json({ error: "El campo 'Descripcion' es obligatorio." });
+      return res
+        .status(400)
+        .json({ error: "El campo 'Descripcion' es obligatorio." });
     }
 
-    const db = await getDb();
-    const r = await db
-      .request()
-      .input("ArticuloID", sql.Int, Number(id))
-      .input("Descripcion", sql.NVarChar(150), Descripcion)
-      .input("PrecioUnitario", sql.Decimal(10, 2), Number(PrecioUnitario))
-      .input("Estado", sql.Bit, Estado ? 1 : 0)
-      .query(`
-        UPDATE Articulos
-        SET Descripcion = @Descripcion,
-            PrecioUnitario = @PrecioUnitario,
-            Estado = @Estado
-        OUTPUT INSERTED.*
-        WHERE ArticuloID = @ArticuloID
-      `);
+    const articuloId = Number(id);
+    if (Number.isNaN(articuloId)) {
+      return res.status(400).json({ error: "ID de artículo inválido." });
+    }
 
-    if (r.recordset.length === 0) {
+    const precio = Number(PrecioUnitario) || 0;
+    const estadoBool = Estado === 1 || Estado === true || Estado === "1";
+
+    const { data, error } = await supabase
+      .from("articulos")
+      .update({
+        descripcion: Descripcion,
+        preciounitario: precio,
+        estado: estadoBool,
+      })
+      .eq("articuloid", articuloId)
+      .select("articuloid, descripcion, preciounitario, estado")
+      .single();
+
+    if (error && error.code === "PGRST116") {
       return res.status(404).json({ error: "Artículo no encontrado." });
     }
 
-    res.status(200).json(r.recordset[0]);
+    if (error) {
+      console.error("Error Supabase en PUT /api/articulos/:id:", error);
+      return res
+        .status(500)
+        .json({ error: "Error interno del servidor al actualizar artículo." });
+    }
+
+    if (!data) {
+      return res.status(404).json({ error: "Artículo no encontrado." });
+    }
+
+    const mapped = {
+      ArticuloID: data.articuloid,
+      Descripcion: data.descripcion,
+      PrecioUnitario: data.preciounitario,
+      Estado: data.estado,
+    };
+
+    res.status(200).json(mapped);
   } catch (error) {
     console.error("Error en PUT /api/articulos/:id:", error);
-    res.status(500).json({ error: "Error interno del servidor al actualizar artículo." });
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al actualizar artículo." });
   }
 });
 
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const db = await getDb();
 
-    const r = await db
-      .request()
-      .input("ArticuloID", sql.Int, Number(id))
-      .query(`
-        DELETE FROM Articulos
-        OUTPUT DELETED.*
-        WHERE ArticuloID = @ArticuloID
-      `);
+    const articuloId = Number(id);
+    if (Number.isNaN(articuloId)) {
+      return res.status(400).json({ error: "ID de artículo inválido." });
+    }
 
-    if (r.recordset.length === 0) {
+    const { data, error } = await supabase
+      .from("articulos")
+      .delete()
+      .eq("articuloid", articuloId)
+      .select("articuloid, descripcion, preciounitario, estado")
+      .single();
+
+    if (error && error.code === "PGRST116") {
       return res.status(404).json({ error: "Artículo no encontrado." });
     }
 
-    res.status(200).json(r.recordset[0]);
+    if (error) {
+      console.error("Error Supabase en DELETE /api/articulos/:id:", error);
+      return res
+        .status(500)
+        .json({ error: "Error interno del servidor al eliminar artículo." });
+    }
+
+    if (!data) {
+      return res.status(404).json({ error: "Artículo no encontrado." });
+    }
+
+    const mapped = {
+      ArticuloID: data.articuloid,
+      Descripcion: data.descripcion,
+      PrecioUnitario: data.preciounitario,
+      Estado: data.estado,
+    };
+
+    res.status(200).json(mapped);
   } catch (error) {
     console.error("Error en DELETE /api/articulos/:id:", error);
-    res.status(500).json({ error: "Error interno del servidor al eliminar artículo." });
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al eliminar artículo." });
   }
 });
 
